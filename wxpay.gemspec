@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "fakeweb"
+  spec.add_dependency             "builder", "~> 3.2"
   spec.add_dependency             "nokogiri", "~> 1.6"
   spec.add_dependency             "faraday", "~> 0.9.1"
 end

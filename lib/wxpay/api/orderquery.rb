@@ -1,3 +1,4 @@
+require 'builder'
 require 'faraday'
 
 module Wxpay
@@ -11,8 +12,8 @@ module Wxpay
           nonce_str: random_str,
           out_trade_no: order.wxpay_trade_no
         }
-        sort_str = Wxpay::Sign.create_sign_str param
-        sign = Wxpay::Sign.sign_package sort_str
+
+        sign = Wxpay::Sign.sign_package param
 
         _xm = Builder::XmlMarkup.new
         request_str = _xm.xml {

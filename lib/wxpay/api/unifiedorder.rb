@@ -1,3 +1,4 @@
+require 'builder'
 require 'faraday'
 
 module Wxpay
@@ -14,8 +15,7 @@ module Wxpay
 
         param = defaults.merge(order.attributes).merge(options)
 
-        sort_str = Wxpay::Sign.create_sign_str param
-        sign = Wxpay::Sign.sign_package sort_str
+        sign = Wxpay::Sign.sign_package param
 
         _xm = Builder::XmlMarkup.new
         request_str = _xm.xml {

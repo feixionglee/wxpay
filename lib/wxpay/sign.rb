@@ -2,20 +2,33 @@ module Wxpay
   module Sign
     extend self
 
-    def sign_package params_str, options={}
-      if params_str =~ /trade_type=APP/ || options[:trade_type] == 'APP'
+    # used in wechat pay api
+    def sign_package params
+      params_str = create_sign_str params
+
+      if params_str =~ /trade_type=APP/
         key = Wxpay.app_api_key
       else
         key = Wxpay.api_key
       end
-      Rails.logger.info "sign_package:::::: #{params_str}"
       Digest::MD5.hexdigest(params_str+"&key=#{key}").upcase
     end
 
-    def sign_pay params_str
-      Rails.logger.info "sign_pay:::::: #{params_str}"
+    # used in wechat jssdk ,
+    def sign_jssdk params
+      params_str = create_sign_str params
+
       Digest::SHA1.hexdigest params_str
     end
+
+    # used in wechat pay notify
+    def verify params
+      sign_str = create_sign_str(params.except('sign'))
+
+      params['sign'] == sign_package(sign_str)
+    end
+
+    private
 
     def create_sign_str options={}, sort=true
       unsigned_str = ''
@@ -28,9 +41,5 @@ module Wxpay
       unsigned_str = unsigned_str[0, unsigned_str.length - 1]
     end
 
-    def verify params
-      sign_str = create_sign_str(params.except('sign'))
-      params['sign'] == sign_package(sign_str)
-    end
   end
 end

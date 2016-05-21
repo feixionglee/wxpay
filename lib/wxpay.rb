@@ -3,6 +3,7 @@ require "wxpay/version"
 require "wxpay/sign"
 require "wxpay/api"
 require "wxpay/order"
+require "wxpay/helpers"
 
 module Wxpay
   class << self
@@ -23,3 +24,5 @@ module Wxpay
     end
   end
 end
+
+ActionView::Base.send :include, Wxpay::Helpers if defined? ActionView::Base
