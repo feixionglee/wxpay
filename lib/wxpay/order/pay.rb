@@ -23,11 +23,12 @@ module Wxpay
 
         Wxpay.debug_info resp.body
 
-        if xml.at('code_url').present?
-          code_url = xml.at('code_url').text
-          return {status: 'success', code_url: code_url}
-        else
+        if xml.at('return_code').text == 'SUCCESS' && xml.at('result_code').text == 'SUCCESS'
+          return {status: 'success', prepay_id: xml.at('prepay_id').text}
+        elsif xml.at('return_code').text == 'SUCCESS'
           return {status: 'failure', err_msg: xml.at('err_code_des').text}
+        else
+          return {status: 'failure', err_msg: xml.at('return_msg').text}
         end
       end
 
