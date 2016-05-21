@@ -1,4 +1,3 @@
-require 'builder'
 require 'faraday'
 
 module Wxpay
