@@ -2,7 +2,6 @@ module Wxpay
   module Helpers
     def render_jsapi_script options={}
       javascript_tag <<-SCRIPT
-<script>
 function onBridgeReady(){
   WeixinJSBridge.invoke(
     'getBrandWCPayRequest', {
@@ -30,7 +29,6 @@ if (typeof WeixinJSBridge == "undefined"){
 }else{
   onBridgeReady();
 }
-</script>
 SCRIPT
     end
   end
