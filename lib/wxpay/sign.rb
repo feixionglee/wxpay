@@ -23,9 +23,7 @@ module Wxpay
 
     # used in wechat pay notify
     def verify params
-      sign_str = create_sign_str(params.except('sign'))
-
-      params['sign'] == sign_package(sign_str)
+      params['sign'] == sign_package(params.except('sign'))
     end
 
     private
