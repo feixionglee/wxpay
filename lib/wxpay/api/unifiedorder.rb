@@ -8,8 +8,8 @@ module Wxpay
         random_str = SecureRandom.hex(10)
 
         defaults = {
-          appid:            Wxpay.app_id,
-          mch_id:           Wxpay.merchant_id,
+          appid:            order.app_id,
+          mch_id:           order.merchant_id,
           nonce_str:        random_str
         }
 

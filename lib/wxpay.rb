@@ -4,6 +4,7 @@ require "wxpay/sign"
 require "wxpay/api"
 require "wxpay/order"
 require "wxpay/helpers"
+require "wxpay/controllers"
 
 module Wxpay
   class << self

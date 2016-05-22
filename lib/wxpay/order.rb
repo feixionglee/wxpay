@@ -52,10 +52,6 @@ module Wxpay
         raise OrderIllegal, "trade_type must be one of ['NATIVE', 'APP', 'JSAPI']"
       end
 
-      if @trade_type == 'JSAPI' && @openid.blank?
-        raise OrderIllegal, "openid is needed"
-      end
-
       if @trade_type == 'NATIVE' && @product_id.blank?
         raise OrderIllegal, "product_id is needed"
       end
