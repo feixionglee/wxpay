@@ -75,11 +75,10 @@ in your controller:
 ```ruby
   def wxpay_jsapi
     @order = Order.find params[:id]
-    # 'open_id' is need for JSAPI pay
-    # if your do not get the usee's openid, you can call :wxpay_openid method, which is defined in the gem,
-    # then the gem will do this work automatic
-    # COMMENT THIS LINE
+
+    # if you do not get user's openid, JUST COMMENT THIS LINE
     # wxpay_openid
+
     @wxorder = Wxpay::Order.new body: @order.subject,
                                 total_fee: @order.total_fee,
                                 spbill_create_ip: request_ip,
@@ -97,7 +96,10 @@ in your controller:
       @error_message = resp[:err_msg]
     end
   end
-
+```
+**wxpay_openid** is convenient for you to get current_user's openid, you can call method directly within your action, or you can put it into before_action.
+**signature_params** is another method to set params for wechat javascript api for payment
+```ruby
   protected
 
   def signature_params
@@ -119,6 +121,7 @@ in your controller:
     @success_url = YOUR_SUCCESS_URL
   end
 ```
+
 
 in your view:
 ```ruby
