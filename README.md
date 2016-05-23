@@ -70,9 +70,61 @@ Support there is a action named 'wxpay'
 ```
 
 2, JSAPI pay
+
+in your controller:
 ```ruby
-  TODO
+  def wxpay_jsapi
+    @order = Order.find params[:id]
+    # 'open_id' is need for JSAPI pay
+    # if your do not get the usee's openid, you can call :wxpay_openid method, which is defined in the gem,
+    # then the gem will do this work automatic
+    # COMMENT THIS LINE
+    # wxpay_openid
+    @wxorder = Wxpay::Order.new body: @order.subject,
+                                total_fee: @order.total_fee,
+                                spbill_create_ip: request_ip,
+                                notify_url: your_notify_url,
+                                out_trade_no: @order.wxpay_trade_no,
+                                trade_type: 'JSAPI',
+                                openid: session[:wxpay_openid]
+
+    resp = @wxorder.pay!
+
+    if resp[:status] == "success"
+      @prepay_id = resp[:prepay_id]
+      signature_params
+    else
+      @error_message = resp[:err_msg]
+    end
+  end
+
+  protected
+
+  def signature_params
+    @timestamp = Time.current.to_i
+    @nonce_str = SecureRandom.hex(16)
+    @package = "prepay_id=#{@prepay_id}"
+
+    param = {
+      'appId' => Wxpay.app_id,
+      'timeStamp' => @timestamp,
+      'nonceStr' => @nonce_str,
+      'package' => @package,
+      'signType' => 'MD5'
+    }
+
+    @pay_sign = Wxpay::Sign.sign_package param
+
+    # success_url is a url the wechat will redirect when the payment succeed
+    @success_url = YOUR_SUCCESS_URL
+  end
 ```
+
+in your view:
+```ruby
+= render_jsapi_script(timestamp: @timestamp, nonce_str: @nonce_str, package: @package, pay_sign: @pay_sign, success_url: @success_url)
+```
+this helper method will generate some javascript into the view, and launch the wechat jsapi payment
 
 3, APP pay
 ```ruby
