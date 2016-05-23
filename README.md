@@ -44,9 +44,11 @@ Wxpay.debug_info request.body.inspect
 
 ## Usage
 
-Support there is a action named 'wxpay'
-
 1, NATIVE pay
+
+Example code:
+
+In your controller
 ```ruby
   def wxpay
     @order = Order.find params[:id]
@@ -71,6 +73,13 @@ Support there is a action named 'wxpay'
 
 2, JSAPI pay
 
+**Notice**
+
+Compare to NATIVE pay, you need more settings to make jsapi works.
+you need to set a url of the web page which the JSAPI pay launch,
+and you need set permission to get base user info, e.g. **openid**, from wechat server.
+
+Example code:
 in your controller:
 ```ruby
   def wxpay_jsapi
@@ -130,8 +139,52 @@ in your view:
 this helper method will generate some javascript into the view, and launch the wechat jsapi payment
 
 3, APP pay
+
+Example code:
 ```ruby
-  TODO
+def wxpay_app
+  @order = Order.find params[:id]
+  Wxpay::Order.new body: @order.subject,
+                  total_fee: @order.total_fee,
+                  spbill_create_ip: request_ip,
+                  notify_url: your_notify_url,
+                  out_trade_no: @order.wxpay_trade_no,
+                  trade_type: 'APP',
+                  openid: session[:wxpay_openid]
+
+  resp = @wxorder.pay!
+
+  if resp[:status] == "success"
+    @prepay_id = resp[:prepay_id]
+  else
+    @error_message = resp[:err_msg]
+  end
+
+  @timestamp = Time.current.to_i
+  @nonce_str = SecureRandom.hex(16)
+  @package = "Sign=WXPay"
+
+  param = {
+    'appid' => Wxpay.app_app_id,
+    'partnerid' => Wxpay.app_merchant_id,
+    'trade_type' => 'APP',
+    'prepayid' => @prepay_id,
+    'package' => @package,
+    'noncestr' => @nonce_str,
+    'timestamp' => @timestamp
+  }
+
+  @pay_sign = WxSign.sign_package param
+  # return the hash to your app
+  return json: { appid: APP_APP_ID,
+                 partner_id: APP_MERCHANT_ID,
+                 prepay_id: @prepay_id,
+                 package_value: @package,
+                 nonce_str: @nonce_str.to_s,
+                 time_stamp: @timestamp,
+                 sign: @pay_sign
+                }
+end
 ```
 
 ## Contributing
