@@ -1,6 +1,6 @@
 # Wxpay
 
-A simple unofficial wechat pay gem, Support 'NATIVE', 'JSAPI', 'APP' payment mode.
+A simple unofficial wechat pay gem, Support 'NATIVE', 'JSAPI', 'APP' payment mode. Only implement **unifiedorder** interface.
 
 ## Installation
 
@@ -44,9 +44,9 @@ Wxpay.debug_info request.body.inspect
 
 ## Usage
 
-1, NATIVE pay
+The most important part is the class Wxpay::Order and the instance method :pay!. You just need initialize a Wxpay::Order object, and call :pay!, check these examples for details.
 
-Example code:
+1, NATIVE pay
 
 In your controller
 ```ruby
@@ -73,13 +73,8 @@ In your controller
 
 2, JSAPI pay
 
-**Notice**
+**Notice** Compare to NATIVE pay, you need more settings to make jsapi works. You need to set a url of the web page which the JSAPI pay launch, and you need set permission to get base user info, e.g. **openid**, from wechat server.
 
-Compare to NATIVE pay, you need more settings to make jsapi works.
-you need to set a url of the web page which the JSAPI pay launch,
-and you need set permission to get base user info, e.g. **openid**, from wechat server.
-
-Example code:
 in your controller:
 ```ruby
   def wxpay_jsapi
@@ -99,55 +94,43 @@ in your controller:
     resp = @wxorder.pay!
 
     if resp[:status] == "success"
-      @prepay_id = resp[:prepay_id]
-      signature_params
+      result = resp[:result]
+      @app_id = result[:app_id]
+      @timestamp = result[:timestamp]
+      @nonce_str = result[:nonce_str]
+      @package = result[:package]
+      @pay_sign = result[:pay_sign]
+      @success_url = YOUR_SUCCESS_URL # the url to redirect after user paid successful
     else
       @error_message = resp[:err_msg]
     end
   end
 ```
 **wxpay_openid** is convenient for you to get current_user's openid, you can call method directly within your action, or you can put it into before_action.
-**signature_params** is another method to set params for wechat javascript api for payment
-```ruby
-  protected
-
-  def signature_params
-    @timestamp = Time.current.to_i
-    @nonce_str = SecureRandom.hex(16)
-    @package = "prepay_id=#{@prepay_id}"
-
-    param = {
-      'appId' => Wxpay.app_id,
-      'timeStamp' => @timestamp,
-      'nonceStr' => @nonce_str,
-      'package' => @package,
-      'signType' => 'MD5'
-    }
-
-    @pay_sign = Wxpay::Sign.sign_package param
-
-    # success_url is a url the wechat will redirect when the payment succeed
-    @success_url = YOUR_SUCCESS_URL
-  end
-```
-
 
 in your view:
 ```ruby
-= render_jsapi_script(timestamp: @timestamp, nonce_str: @nonce_str, package: @package, pay_sign: @pay_sign, success_url: @success_url)
+= render_jsapi_script({
+  app_id: @app_id,
+  timestamp: @timestamp,
+  nonce_str: @nonce_str,
+  package: @package,
+  pay_sign: @pay_sign,
+  sign_type: "MD5",
+  success_url: @success_url
+  })
 ```
 this helper method will generate some javascript into the view, and launch the wechat jsapi payment
 
 3, APP pay
 
-Example code:
 ```ruby
 def wxpay_app
   @order = Order.find params[:id]
   Wxpay::Order.new body: @order.subject,
                   total_fee: @order.total_fee,
                   spbill_create_ip: request_ip,
-                  notify_url: your_notify_url,
+                  notify_url: YOUR_NOTIFY_URL,
                   out_trade_no: @order.wxpay_trade_no,
                   trade_type: 'APP',
                   openid: session[:wxpay_openid]
@@ -155,35 +138,12 @@ def wxpay_app
   resp = @wxorder.pay!
 
   if resp[:status] == "success"
-    @prepay_id = resp[:prepay_id]
+    @result = resp[:result]
   else
     @error_message = resp[:err_msg]
   end
 
-  @timestamp = Time.current.to_i
-  @nonce_str = SecureRandom.hex(16)
-  @package = "Sign=WXPay"
-
-  param = {
-    'appid' => Wxpay.app_app_id,
-    'partnerid' => Wxpay.app_merchant_id,
-    'trade_type' => 'APP',
-    'prepayid' => @prepay_id,
-    'package' => @package,
-    'noncestr' => @nonce_str,
-    'timestamp' => @timestamp
-  }
-
-  @pay_sign = WxSign.sign_package param
-  # return the hash to your app
-  return json: { appid: APP_APP_ID,
-                 partner_id: APP_MERCHANT_ID,
-                 prepay_id: @prepay_id,
-                 package_value: @package,
-                 nonce_str: @nonce_str.to_s,
-                 time_stamp: @timestamp,
-                 sign: @pay_sign
-                }
+  return json: @result
 end
 ```
 
