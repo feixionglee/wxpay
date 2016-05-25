@@ -5,11 +5,11 @@ module Wxpay
 function onBridgeReady(){
   WeixinJSBridge.invoke(
     'getBrandWCPayRequest', {
-      "appId"    : "#{Wxpay.app_id}",
+      "appId"    : "#{options[:app_id]}",
       "timeStamp": "#{options[:timestamp]}",
       "nonceStr" : "#{options[:nonce_str]}",
       "package"  : "#{options[:package]}",
-      "signType" : "MD5",
+      "signType" : "#{options[:sign_type]}",
       "paySign"  : "#{options[:pay_sign]}"
     },
     function(res){

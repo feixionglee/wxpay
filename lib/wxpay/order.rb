@@ -25,6 +25,7 @@ module Wxpay
       :attach # 附加数据
     ]
 
+
     attr_accessor :attributes
 
     attr_reader *AVAILABLE_ATTRIBUTES
