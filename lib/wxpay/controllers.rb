@@ -1,3 +1,5 @@
+require 'builder'
+
 module Wxpay
   module Controllers
 
@@ -24,6 +26,24 @@ module Wxpay
         warn "Wechat openid Exception::::::"
         warn e.message
       end
+    end
+
+    def wxpay_notify_verify
+      @notify = Hash.from_xml(request.body.read)["xml"]
+
+      unless Wxpay::Sign.verify @notify
+        Wxpay.debug_info @notify.inspect
+        Wxpay.debug_info "wx_pay notify sign not right"
+        render nothing: true and return
+      end
+    end
+
+    def wxpay_notify_response_xml
+      _xm = Builder::XmlMarkup.new
+      result_xml = _xm.xml {
+        _xm.return_code 'SUCCESS'
+        _xm.return_msg  'OK'
+      }
     end
   end
 end

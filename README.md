@@ -147,6 +147,12 @@ def wxpay_app
 end
 ```
 
+4, Notify from Wechat Server
+```ruby
+  TODO
+```
+
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/feixionglee/wxpay. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
