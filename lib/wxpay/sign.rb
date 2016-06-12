@@ -24,7 +24,7 @@ module Wxpay
     # used in wechat pay notify
     def verify params
       sign = params.delete('sign')
-      params['sign'] == sign_package(params)
+      sign == sign_package(params)
     end
 
     private

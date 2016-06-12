@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency             "builder", "~> 3.2"
   spec.add_dependency             "nokogiri", "~> 1.6"
   spec.add_dependency             "faraday", "~> 0.9.1"
+  spec.add_dependency             "railties", ">= 4.1.0"
 end

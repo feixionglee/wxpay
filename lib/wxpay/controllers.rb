@@ -40,7 +40,7 @@ module Wxpay
 
     def wxpay_notify_response_xml
       _xm = Builder::XmlMarkup.new
-      result_xml = _xm.xml {
+      _xm.xml {
         _xm.return_code 'SUCCESS'
         _xm.return_msg  'OK'
       }

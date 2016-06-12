@@ -148,8 +148,16 @@ end
 ```
 
 4, Notify from Wechat Server
+
+Verify the request from wechat server, and generate response xml. There are two helper methods to do it easily. **wxpay_notify_verify**, and **wxpay_notify_response_xml**
+e.g.
 ```ruby
-  TODO
+  def wxpay_notify
+    wxpay_notify_verify
+    # your logical
+    render wxpay_notify_response_xml
+  end
+
 ```
 
 

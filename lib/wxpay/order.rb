@@ -4,6 +4,9 @@ module Wxpay
   class Order
     include Pay
 
+    class OrderIllegal < RuntimeError
+    end
+
     ### 详见微信支付文档
     AVAILABLE_ATTRIBUTES = [
       :body, # 商品描述
@@ -28,10 +31,10 @@ module Wxpay
 
     attr_accessor :attributes
 
-    attr_reader *AVAILABLE_ATTRIBUTES
+    # attr_reader *AVAILABLE_ATTRIBUTES
 
     def initialize options={}
-      @attributes = options.slice *AVAILABLE_ATTRIBUTES
+      @attributes = options.select {|key, value| AVAILABLE_ATTRIBUTES.include?(key)}
 
       puts @attributes.inspect
 
@@ -39,12 +42,12 @@ module Wxpay
         instance_variable_set("@#{name}", value)
       end
 
-      unless @body.present? &&
-            @total_fee.present? &&
-            @out_trade_no.present? &&
-            @trade_type.present? &&
-            @spbill_create_ip.present? &&
-            @notify_url.present?
+      unless @body &&
+            @total_fee &&
+            @out_trade_no &&
+            @trade_type &&
+            @spbill_create_ip &&
+            @notify_url
 
         raise OrderIllegal, "missing params: #{options}"
       end
@@ -53,7 +56,7 @@ module Wxpay
         raise OrderIllegal, "trade_type must be one of ['NATIVE', 'APP', 'JSAPI']"
       end
 
-      if @trade_type == 'NATIVE' && @product_id.blank?
+      if @trade_type == 'NATIVE' && !@product_id
         raise OrderIllegal, "product_id is needed"
       end
     end
@@ -66,8 +69,5 @@ module Wxpay
     def merchant_id
       self.trade_type == 'APP' ? Wxpay.app_merchant_id : Wxpay.merchant_id
     end
-  end
-
-  class OrderIllegal < RuntimeError
   end
 end
